@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "bladna" ,
     "rest_framework" ,
+    "rest_framework.authtoken"
 ]
 
 AUTH_USER_MODEL = 'bladna.User' 

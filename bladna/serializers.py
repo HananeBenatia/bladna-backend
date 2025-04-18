@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User , Parent
 
 from django.contrib.auth import authenticate 
 
@@ -9,11 +9,11 @@ class SigninSerializer (serializers.ModelSerializer) :
         fields = ['full_name' , 'age' ,'username' ,'password']
         extra_kwargs = {'password' : {'write_only' : True } }
     def create (self , validated_data): 
-        user = User.objects.create_user( full_name = validated_data['full_name'] , age = validated_data['age'] , username = validated_data['username'] , password = validated_data['password'] )
+        user = User.objects.create_user( full_name = validated_data['full_name'] , age = validated_data['age']  , username = validated_data['username'] , password = validated_data['password'] )
         return user 
     
 
-class LoginSerializer(serializers.Serializer) :
+class LoginSerializer ( serializers.Serializer ) :
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
     def validate(self, data) :
@@ -21,4 +21,10 @@ class LoginSerializer(serializers.Serializer) :
         if user and user.is_active :
             return user
         raise serializers.ValidationError("incorrect username or password ") 
+    
+
+class ParentSerializer (serializers.ModelSerializer) :
+    class Meta :
+        model = Parent 
+        fields = ['secret_answer']
 
