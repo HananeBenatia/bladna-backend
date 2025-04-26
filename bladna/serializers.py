@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User , Parent
+from .models import User 
 
 from django.contrib.auth import authenticate 
 
@@ -23,8 +23,27 @@ class LoginSerializer ( serializers.Serializer ) :
         raise serializers.ValidationError("incorrect username or password ") 
     
 
-class ParentSerializer (serializers.ModelSerializer) :
+'''class ParentSerializer (serializers.ModelSerializer) :
     class Meta :
         model = Parent 
-        fields = ['secret_answer']
+        fields = ['secret_answer']'''
 
+class SetparentsecretSerializer ( serializers.ModelSerializer ) :
+    class Meta : 
+         model = User
+         fields = ['parent_secret']
+         extra_kwargs = {'parent_secret' : {'write_only' : True } }
+         def set(self,instance,validated_data):
+             instance.parent_secretr= validated_data.get('parent_secret',instance.parent_secret)
+             instance.save()
+             return instance
+
+
+
+class VerifyparentsecretSerializer ( serializers.Serializer ) :
+    parent_secret= serializers.CharField(max_length=100)
+    def validate(self, attrs):
+        user = self.context['request'].user
+        if user.parent_secret != attrs['parent_secret']:
+            raise serializers.ValidationError("Incorrect answer")
+        return attrs        
