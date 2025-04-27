@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.decorators import APIView , api_view , permission_classes
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from rest_framework import status
 from .models import User  , Progress
@@ -10,6 +11,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from datetime import date
 import logging
 from django.http import JsonResponse
+import json
 # Create your views here.  
 
 
@@ -120,3 +122,28 @@ def get_today_progress(request):
             {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )         
+    
+@csrf_exempt
+def reset_password (request) :
+    if request.method != 'POST' :
+        return JsonResponse ({'error' : 'Only POST method is allowed .'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    try :
+        data = json.loads (request.body)
+        username = data.get ('username')
+        newpassword = data.get ('newpassword')
+        confirmpassword = data.get ('confirmpassword')
+        if not username or not newpassword or not confirmpassword :
+            return JsonResponse ({'error' : 'All fields are required .'}, status=status.HTTP_400_BAD_REQUEST)
+        if newpassword !=confirmpassword :
+            return JsonResponse ({'error' : 'The passwords do not match .'}, status=status.HTTP_400_BAD_REQUEST)
+        try : 
+            user = User.objects.get (username=username)
+        except User.DoesNotExist :
+            return JsonResponse ({'error' : 'User not found.'}, status=status.HTTP_404_NOT_FOUND )
+        user.password = newpassword
+        user.save()
+        return JsonResponse ({'error' : 'Reset password done successfully.'}, status=status.HTTP_200_OK )
+    except json.JSONDecodeError :
+        return JsonResponse ({'error' : 'Invalid json.'}, status=status.HTTP_400_BAD_REQUEST )
+
+

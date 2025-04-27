@@ -17,11 +17,14 @@ class LoginSerializer ( serializers.Serializer ) :
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
     def validate(self, data) :
-        user = authenticate(**data)
-        if user and user.is_active :
-            return user
-        raise serializers.ValidationError("incorrect username or password ") 
-    
+        try :
+            user = User.objects.get (username=data['username'])
+            if user.password == data['password'] :
+                return user
+            else :
+                raise serializers.ValidationError("Incorrect username or password .")
+        except User.DoesNotExist :
+            return serializers.ValidationError("Incorrect username or password .")
 
 class SetparentsecretSerializer ( serializers.ModelSerializer ) :
     class Meta : 
@@ -48,3 +51,12 @@ class ProgressSerializer (serializers.ModelSerializer) :
     class Meta :
         model = Progress
         fields = ['region' , 'score' , 'play_date']
+
+class ResetPasswordSerializer (serializers.Serializer) :
+    username = serializers.CharField()
+    newpassword = serializers.CharField( write_only=True )
+    confirmpassword = serializers.CharField( write_only=True )
+    def validate(self, data):
+        if data['newpassword'] != data['confirmpassword'] :
+            raise serializers.ValidationError ("Passwords do not match .")
+        return data 
