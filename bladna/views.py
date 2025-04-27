@@ -1,12 +1,15 @@
 from django.shortcuts import render
 from rest_framework import generics
-from rest_framework.decorators import APIView
+from rest_framework.decorators import APIView , api_view , permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User 
-from .serializers import SigninSerializer , LoginSerializer , SetparentsecretSerializer , VerifyparentsecretSerializer
+from .models import User  , Progress
+from .serializers import SigninSerializer , LoginSerializer , SetparentsecretSerializer , VerifyparentsecretSerializer , ProgressSerializer 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import AccessToken
+from datetime import date
+import logging
+from django.http import JsonResponse
 # Create your views here.  
 
 
@@ -32,33 +35,7 @@ class user_login(APIView):
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
-'''class secret_answer_set(APIView):
-     permission_classes = [IsAuthenticated]
-     def post(self , request) :
-         user = request.user
-         given_answer = request.data.get('secret_answer')
-         if Parent.objects.filter(user=user).exists() : 
-             return Response({"detail" : "secret answer already set"}, status=status.HTTP_400_BAD_REQUEST)
-         parent = Parent.objects.create(user=user , secret_answer = given_answer)
-         return Response ({"detail" : " secret answer saved "} , status=status.HTTP_201_CREATED)'''
-
-         
-'''class secret_answer_verify(APIView) :
-    def post(self , request) :
-        user = request.user 
-        given_answer = request.data.get('secret_answer')
-        try : 
-            parent = Parent.objects.get(user=user)
-        except Parent.DoesNotExist : 
-            return Response ( {"detail" : "secrect answer not set"}, status=status.HTTP_404_NOT_FOUND)
         
-        if parent.secret_answer.strip().lower() == given_answer.strip().lower() :
-          return Response( {"detail" : "access validated"} , status=status.HTTP_200_OK )
-        else : 
-            return Response ( {"detail" : "wrong answer"} , status=status.HTTP_403_FORBIDDEN)'''
-        
-
 
 class secret_answer_set(APIView):
      permission_classes = [IsAuthenticated]
@@ -87,4 +64,59 @@ class secret_answer_verify(APIView):
             {"detail": "wrong answer"},
             status=status.HTTP_400_BAD_REQUEST
         )
-             
+
+logger = logging.getLogger(__name__)
+
+class SaveprogressView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            today = date.today()
+            region = request.data.get('region')
+            score = request.data.get('score')
+
+            if not region or score is None:
+                return Response({"error": "Region and score are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+            existing_progress = Progress.objects.filter(user=request.user, play_date=today).first()
+            
+            if existing_progress:
+                existing_progress.delete()
+
+            progress = Progress.objects.create(
+                user=request.user,
+                play_date=today,
+                region=region,
+                score=score
+            )
+
+            serializer = ProgressSerializer(progress)
+            return Response(
+                {"message": "Last progress of the day saved", "progress": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+        except Exception as e:
+            logger.error("Error in SaveprogressView: %s", str(e), exc_info=True)
+            return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_today_progress(request):
+    try:
+        today = date.today()
+        progress = Progress.objects.filter(user=request.user, play_date=today).first()
+        
+        if progress:
+            serializer = ProgressSerializer(progress)
+            return Response(serializer.data)
+        return Response(
+            {"message": "No progress saved for today"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )         

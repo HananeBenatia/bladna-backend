@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User 
+from .models import User , Progress 
 
 from django.contrib.auth import authenticate 
 
@@ -23,11 +23,6 @@ class LoginSerializer ( serializers.Serializer ) :
         raise serializers.ValidationError("incorrect username or password ") 
     
 
-'''class ParentSerializer (serializers.ModelSerializer) :
-    class Meta :
-        model = Parent 
-        fields = ['secret_answer']'''
-
 class SetparentsecretSerializer ( serializers.ModelSerializer ) :
     class Meta : 
          model = User
@@ -47,3 +42,9 @@ class VerifyparentsecretSerializer ( serializers.Serializer ) :
         if user.parent_secret != attrs['parent_secret']:
             raise serializers.ValidationError("Incorrect answer")
         return attrs        
+    
+
+class ProgressSerializer (serializers.ModelSerializer) :
+    class Meta :
+        model = Progress
+        fields = ['region' , 'score' , 'play_date']
