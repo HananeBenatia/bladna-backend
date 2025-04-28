@@ -48,3 +48,9 @@ class ProgressSerializer (serializers.ModelSerializer) :
     class Meta :
         model = Progress
         fields = ['region' , 'score' , 'play_date']
+
+
+class CoinsaddSerializer (serializers.ModelSerializer) : 
+    class Meta : 
+        model = User
+        fields = ['score']

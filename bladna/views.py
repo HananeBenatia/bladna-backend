@@ -4,7 +4,7 @@ from rest_framework.decorators import APIView , api_view , permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .models import User  , Progress
-from .serializers import SigninSerializer , LoginSerializer , SetparentsecretSerializer , VerifyparentsecretSerializer , ProgressSerializer 
+from .serializers import SigninSerializer , LoginSerializer , SetparentsecretSerializer , VerifyparentsecretSerializer , ProgressSerializer , CoinsaddSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import AccessToken
 from datetime import date
@@ -120,3 +120,20 @@ def get_today_progress(request):
             {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )         
+    
+
+class Update_score(APIView) :              #add 2 coins to the user"s score and save it after getting a correct answer
+    permission_classes = [IsAuthenticated]
+    def post(self,request) :
+        try : 
+            user = request.user
+            user.score += 2
+            user.save()
+            serializer=CoinsaddSerializer(user)
+            return Response(
+                {"message": " 2 coins added to the score ", "new_score": serializer.data},
+                status=status.HTTP_200_OK
+            )
+        except Exception as e :
+            return Response ( { "error " : str(e)} , status=500)
+             
