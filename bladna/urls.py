@@ -10,7 +10,7 @@ urlpatterns = [
     path('verify_parent_secret/', secret_answer_verify.as_view() , name = 'verify_Parent_secret_answer'),
     path('progress/save/', SaveprogressView.as_view() , name = 'save_progress'),
     path('progress/today/', get_today_progress , name = 'get_today_progress'),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  #just for testing
     path('update_users_score/', Update_score.as_view() , name = 'Update_users_score'),
 
 ]
