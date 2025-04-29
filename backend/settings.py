@@ -42,11 +42,13 @@ INSTALLED_APPS = [
     "bladna" ,
     "rest_framework" ,
     "rest_framework_simplejwt",
+    'corsheaders' , 
 ]
 
 AUTH_USER_MODEL = 'bladna.User' 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -143,3 +146,4 @@ AUTHENTICATION_BACKENDS = [
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
 }
+CORS_ALLOW_ALL_ORIGINS = True 
