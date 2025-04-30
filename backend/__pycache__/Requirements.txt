@@ -1,0 +1,6 @@
+Django
+Djangorestframework
+DjangorestframeworksimpleJWT
+corsheaders
+venvs
+environs
