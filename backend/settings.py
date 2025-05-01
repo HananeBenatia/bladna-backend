@@ -150,6 +150,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
 }
 
+
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:19006",       # Expo web (default port)
     "http://127.0.0.1:19006",       # Expo web (alternate)
