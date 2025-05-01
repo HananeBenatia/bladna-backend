@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-@+a!4wj_e41-^r9q528kujk0lpkfxdxb9ffkti-*pixv%jthsa
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1' , 'localhost']   #'127.0.0.1' , 'localhost'
+ALLOWED_HOSTS = ['127.0.0.1' , 'localhost' , '10.0.2.2', '192.168.1.1', ]   #'127.0.0.1' , 'localhost'
 
 
 # Application definition
@@ -42,13 +42,14 @@ INSTALLED_APPS = [
     "bladna" ,
     "rest_framework" ,
     "rest_framework_simplejwt",
-    "corsheaders"
+    'corsheaders',
 ]
 
 AUTH_USER_MODEL = 'bladna.User' 
 
 MIDDLEWARE = [
     
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -56,7 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware'
+   
     
 ]
 
@@ -136,7 +137,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Use JWT
+        'rest_framework_simplejwt.authentication.JWTAuthentication', 
+        'rest_framework.authentication.TokenAuthentication', # Use JWT
     )
 }
 
@@ -148,4 +150,25 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:19006",       # Expo web (default port)
+    "http://127.0.0.1:19006",       # Expo web (alternate)
+    "http://192.168.1.100:19006",   # Expo on phone
+    "http://192.168.1.1:19006",  # React Native dev server
+    "exp://192.168.1.1:19000", 
+    "http://10.0.2.2:19006",        # Android emulator
+]
+
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
